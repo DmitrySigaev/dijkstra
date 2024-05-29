@@ -27,7 +27,7 @@ func benchmarkAlt(b *testing.B, filename string, i int) {
 }
 
 func benchmarkRC(b *testing.B, filename string) {
-	graph, _, _ := Import(filename)
+	graph, _ := Import(filename)
 	src, dest := 0, len(graph.Verticies)-1
 	//====RESET TIMER BEFORE LOOP====
 	b.ResetTimer()
@@ -37,7 +37,7 @@ func benchmarkRC(b *testing.B, filename string) {
 }
 
 func testSolution(t *testing.T, best BestPath, wanterr error, filename string, from, to int) {
-	graph, _, err := Import(filename)
+	graph, err := Import(filename)
 	if err != nil {
 		t.Error(err)
 	}
