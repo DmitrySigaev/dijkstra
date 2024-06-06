@@ -1,2 +1,4 @@
 # dijkstra
-Just another golang Dijkstra's shortest path
+Golangs fastest Dijkstra's shortest (and longest) path calculator
+
+
