@@ -1,7 +1,9 @@
 package dijkstra
 
 import (
+	"os"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -18,12 +20,16 @@ func TestCorrect(t *testing.T) {
 	testSolution(t, getKSolLong(), nil, "testdata/K.txt", 0, 4, false)
 	testSolution(t, getKSolShort(), nil, "testdata/K.txt", 0, 4, true)
 }
-func BenchmarkDmitrySigaevNodes4(b *testing.B)    { benchmarkAlt(b, "testdata/4.txt", 0) }
-func BenchmarkDmitrySigaevNodes10(b *testing.B)   { benchmarkAlt(b, "testdata/10.txt", 0) }
-func BenchmarkDmitrySigaevNodes100(b *testing.B)  { benchmarkAlt(b, "testdata/100.txt", 0) }
-func BenchmarkDmitrySigaevNodes1000(b *testing.B) { benchmarkAlt(b, "testdata/1000.txt", 0) }
+func BenchmarkDmitrySIgaevNodes4(b *testing.B)    { benchmarkAlt(b, 4, 0) }
+func BenchmarkDmitrySIgaevNodes10(b *testing.B)   { benchmarkAlt(b, 10, 0) }
+func BenchmarkDmitrySIgaevNodes100(b *testing.B)  { benchmarkAlt(b, 100, 0) }
+func BenchmarkDmitrySIgaevNodes1000(b *testing.B) { benchmarkAlt(b, 1000, 0) }
 
-func benchmarkAlt(b *testing.B, filename string, i int) {
+func benchmarkAlt(b *testing.B, nodes, i int) {
+	filename := "testdata/bench/" + strconv.Itoa(nodes) + ".txt"
+	if _, err := os.Stat(filename); err != nil {
+		Generate(nodes, filename)
+	}
 	switch i {
 	case 0:
 		benchmarkRC(b, filename)
