@@ -1,12 +1,29 @@
 # dijkstra
 Golangs fastest Dijkstra's shortest (and longest) path calculator
 
+Golangs fastest Dijkstra's shortest (and longest) path calculator, requires go 1.6 or above (for benchmarking).
+
+## Need for speed
+Benchmark comparisons to the other two top golang dijkstra implementations;
+
+```go test -bench .```
+
+![Wow so fast](/speed.png?raw=true "Benchmarks")
+![Wow the multiply!](/mult.png?raw=true "Multiply")
+
+Oddly the speed benefit seems to diminish as the node count increases, this could be
+ due to the fact that the linked list places the to be visited node in the correct
+ ordered position. This means worst case O(n). The generated test cases are worst
+ case, with every need having access to every other node (weighting on the distances
+   to ensure that the shortest path is through lots of nodes). This guarantees
+  worst case scenario for my implementation, but maybe not for the others.
+
 
 ## How to
 ### Generate a graph
 #### Importing from file
 
-The package can import dijkstra files in the format;
+The package can import dijkstra files in the format:
 ```
 0 1,1 2,1
 1 0,1 2,2
@@ -18,7 +35,7 @@ using;
 graph, err := dijkstra.Import("path/to/file")
 ```
 
-ie; node then each arc and it's weight. The default is to use nodes with numbers starting from 0, but the package will map string appropriatly.
+i.e. node then each arc and it's weight. The default is to use nodes with numbers starting from 0, but the package will map string appropriately.
 
 #### Creating a graph
 
@@ -44,6 +61,7 @@ func main(){
 
 Once the graph is created, shortest or longest paths between two points can be generated.
 ```go
+
 best, err := graph.Shortest(0,2)
 if err!=nil{
   log.Fatal(err)
@@ -54,4 +72,6 @@ best, err := graph.Longest(0,2)
 if err!=nil{
   log.Fatal(err)
 }
-fmt.Println("Longest distance ", best.Distance, " following path ", best.Path)```
+fmt.Println("Longest distance ", best.Distance, " following path ", best.Path)
+
+```
