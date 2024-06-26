@@ -166,6 +166,7 @@ func testSolution(t *testing.T, best BestPath, wanterr error, filename string, f
 		t.Fatal(err, filename)
 	}
 	var got BestPath
+	var gotAll BestPaths
 	if list >= 0 {
 		graph.setup(shortest, from, list)
 		got, err = graph.postSetupEvaluate(from, to, shortest)
@@ -176,6 +177,19 @@ func testSolution(t *testing.T, best BestPath, wanterr error, filename string, f
 	}
 	testErrors(t, wanterr, err, filename)
 	testResults(t, got, best, shortest, filename)
+	if list >= 0 {
+		graph.setup(shortest, from, list)
+		gotAll, err = graph.postSetupEvaluateAll(from, to, shortest)
+	} else if shortest {
+		gotAll, err = graph.ShortestAll(from, to)
+	} else {
+		gotAll, err = graph.LongestAll(from, to)
+	}
+	testErrors(t, wanterr, err, filename)
+	if len(gotAll) == 0 {
+		gotAll = BestPaths{BestPath{}}
+	}
+	testResults(t, gotAll[0], best, shortest, filename)
 }
 
 func testResults(t *testing.T, got, best BestPath, shortest bool, filename string) {
