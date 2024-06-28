@@ -22,6 +22,22 @@ func TestCorrect(t *testing.T) {
 	testSolution(t, getKSolShort(), nil, "testdata/K.txt", 0, 4, true, -1)
 }
 
+func TestCorrectSolutionsAll(t *testing.T) {
+	graph := NewGraph()
+	//Add the 3 verticies
+	graph.AddVertex(0)
+	graph.AddVertex(1)
+	graph.AddVertex(2)
+	graph.AddVertex(3)
+
+	//Add the arcs
+	graph.AddArc(0, 1, 1)
+	graph.AddArc(0, 2, 1)
+	graph.AddArc(1, 3, 0)
+	graph.AddArc(2, 3, 0)
+	testGraphSolutionAll(t, BestPaths{BestPath{1, []int{0, 2, 3}}, BestPath{1, []int{0, 1, 3}}}, nil, *graph, 0, 3, true)
+}
+
 func TestCorrectAllLists(t *testing.T) {
 	for i := 0; i <= 3; i++ {
 		testSolution(t, getBSol(), nil, "testdata/B.txt", 0, 5, true, i)
@@ -220,8 +236,20 @@ func testResultsGraphAll(t *testing.T, got, best BestPaths, shortest bool) {
 		if got[i].Distance != best[i].Distance {
 			t.Error(distmethod, " distance incorrect\ngot: ", got[i].Distance, "\nwant: ", best[i].Distance)
 		}
-		if !reflect.DeepEqual(got[i].Path, best[i].Path) {
-			t.Error(distmethod, " path incorrect\ngot: ", got[i].Path, "\nwant: ", best[i].Path)
+	}
+	for i := range got {
+		found := false
+		j := -1
+		for j = range best {
+			if reflect.DeepEqual(got[i].Path, best[j].Path) {
+				//delete found result
+				best = append(best[:j], best[j+1:]...)
+				found = true
+				break
+			}
+		}
+		if found == false {
+			t.Error(distmethod, " could not find path in solution\ngot:", got[i].Path)
 		}
 	}
 }
