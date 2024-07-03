@@ -7,10 +7,10 @@ import (
 
 func TestMapping(t *testing.T) {
 	g := Graph{}
-	if _, err := g.GetMapped(0); err == nil || err.Error() != "Map is not being used/initialised" {
+	if _, err := g.GetMapped(0); err == nil || err.Error() != ErrNoMap.Error() {
 		t.Error("No init map should return correct err\n", err)
 	}
-	if _, err := g.GetMapping("A"); err == nil || err.Error() != "Map is not being used/initialised" {
+	if _, err := g.GetMapping("A"); err == nil || err.Error() != ErrNoMap.Error() {
 		t.Error("No init map should return correct err\n", err)
 	}
 	g = *NewGraph()
@@ -22,7 +22,9 @@ func TestMapping(t *testing.T) {
 		t.Error("Empty map should return correct err\n", err)
 	}
 	//One will create, the other will get the created
-	if g.AddMappedVertex("B") != g.AddMappedVertex("B") {
+	a := g.AddMappedVertex("B")
+	b := g.AddMappedVertex("B")
+	if a != b {
 		t.Error("Adding same map should return same index")
 	}
 	if got, err := g.GetMapped(1); got != "B" || err != nil {

@@ -4,6 +4,12 @@ import (
 	"math"
 )
 
+//BestPath contains the solution of the most optimal path
+type BestPath struct {
+	Distance int64
+	Path     []int
+}
+
 //Shortest calculates the shortest path from src to dest
 func (g *Graph) Shortest(src, dest int) (BestPath, error) {
 	return g.evaluate(src, dest, true)
@@ -56,26 +62,20 @@ func (g *Graph) forceList(i int) {
 		} else {
 			g.forceList(0)
 		}
-		break
 	case -1:
 		if len(g.Verticies) < 800 {
 			g.forceList(3)
 		} else {
 			g.forceList(1)
 		}
-		break
 	case 0:
 		g.visiting = priorityQueueNewShort()
-		break
 	case 1:
 		g.visiting = priorityQueueNewLong()
-		break
 	case 2:
 		g.visiting = linkedListNewShort()
-		break
 	case 3:
 		g.visiting = linkedListNewLong()
-		break
 	default:
 		panic(i)
 	}
@@ -94,6 +94,11 @@ func (g *Graph) bestPath(src, dest int) BestPath {
 }
 
 func (g *Graph) evaluate(src, dest int, shortest bool) (BestPath, error) {
+	if g.running {
+		return BestPath{}, ErrAlreadyCalculating
+	}
+	g.running = true
+	defer func() { g.running = false }()
 	//Setup graph
 	g.setup(shortest, src, -1)
 	return g.postSetupEvaluate(src, dest, shortest)
@@ -147,12 +152,3 @@ func (g *Graph) finally(src, dest int) (BestPath, error) {
 	}
 	return g.bestPath(src, dest), nil
 }
-
-//BestPath contains the solution of the most optimal path
-type BestPath struct {
-	Distance int64
-	Path     []int
-}
-
-//BestPaths contains the list of best solutions
-type BestPaths []BestPath
