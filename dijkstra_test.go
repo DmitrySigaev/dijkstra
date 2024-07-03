@@ -53,6 +53,10 @@ func TestCorrect(t *testing.T) {
 		testErrors(t, nil, err, "manual test")
 		_, err = g.Longest(0, 2000)
 		testErrors(t, nil, err, "manual test")
+		_, err = g.ShortestSafe(0, 2000)
+		testErrors(t, nil, err, "manual test")
+		_, err = g.LongestSafe(0, 2000)
+		testErrors(t, nil, err, "manual test")
 	})
 	t.Run("Concurrent", testConcurrentSolving)
 	t.Run("SequentialRuns", func(t *testing.T) {
@@ -61,6 +65,18 @@ func TestCorrect(t *testing.T) {
 		initialResult, _ := g.Shortest(0, nodeAmount-1)
 		for i := 0; i < 10; i++ {
 			result, err := g.Shortest(0, nodeAmount-1)
+			if err != nil {
+				t.Error("Sequential runs had error: ", err)
+			}
+			if initialResult.Distance != result.Distance {
+				t.Error("Sequential runs are not equal (distance) ", initialResult.Distance, result.Distance)
+			}
+			if !reflect.DeepEqual(initialResult.Path, result.Path) {
+				t.Error("Sequential runs are not equal (path) ", initialResult.Path, result.Path)
+			}
+		}
+		for i := 0; i < 10; i++ {
+			result, err := g.ShortestSafe(0, nodeAmount-1)
 			if err != nil {
 				t.Error("Sequential runs had error: ", err)
 			}
@@ -232,6 +248,8 @@ func benchmarkAlt(b *testing.B, nodes, i int) {
 	switch i {
 	case 0:
 		benchmarkRC(b, filename)
+	case 2:
+		benchmarkDS(b, filename)
 	default:
 		b.Error("You're retarded")
 	}
@@ -244,6 +262,15 @@ func benchmarkRC(b *testing.B, filename string) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		graph.Shortest(src, dest)
+	}
+}
+func benchmarkDS(b *testing.B, filename string) {
+	graph, _ := Import(filename)
+	src, dest := 0, len(graph.Verticies)-1
+	//====RESET TIMER BEFORE LOOP====
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		graph.ShortestSafe(src, dest)
 	}
 }
 
@@ -263,6 +290,13 @@ func testSolution(t *testing.T, best BestPath, wanterr error, filename string, f
 		got, err = graph.Shortest(from, to)
 	} else {
 		got, err = graph.Longest(from, to)
+	}
+	testErrors(t, wanterr, err, filename)
+	testResults(t, got, best, shortest, filename)
+	if shortest {
+		got, err = graph.ShortestSafe(from, to)
+	} else {
+		got, err = graph.LongestSafe(from, to)
 	}
 	testErrors(t, wanterr, err, filename)
 	testResults(t, got, best, shortest, filename)
