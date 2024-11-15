@@ -1,11 +1,24 @@
 # dijkstra
+
 Golangs fastest Dijkstra's shortest (and longest) path calculator
 
+https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+
+
 ## How to
+
+### Install
+
+```bash
+go get github.com/DmitrySigaev/dijkstra/v2
+```
+
 ### Generate a graph
+
 #### Importing from file
 
 The package can import dijkstra files in the format:
+
 ```
 0 1,1 2,1
 1 0,1 2,2
@@ -13,28 +26,33 @@ The package can import dijkstra files in the format:
 ```
 
 using;
+
 ```go
-graph, err := dijkstra.Import("path/to/file")
+data, _ := os.ReadFile("path/to/file")
+graph, err := dijkstra.Import(string(data))
 ```
 
-i.e. node then each arc and it's weight. The default is to use nodes with numbers starting from 0, but the package will map string appropriately.
+i.e. node then each arc and it's weight. The default is to use nodes with
+numbers starting from 0, but the package will map string appropriately (using
+ImportStringMapped instead.
 
 #### Creating a graph
 
 ```go
 package main
 
+import "github.com/DmitrySigaev/dijkstra/v2"
+
 func main(){
-  graph:=dijkstra.NewGraph()
+  graph := dijkstra.NewGraph()
   //Add the 3 verticies
-  graph.AddVertex(0)
-  graph.AddVertex(1)
-  graph.AddVertex(2)
+  graph.AddEmptyVertex(0)
+  graph.AddEmptyVertex(1)
+  graph.AddEmptyVertex(2)
   //Add the arcs
-  graph.AddArc(0,1,1)
-  graph.AddArc(0,2,1)
-  graph.AddArc(1,0,1)
-  graph.AddArc(1,2,2)
+  graph.AddArc(0, 1, 1)
+  graph.AddArc(0, 2, 1)
+  graph.AddArc(1, 2, 2)
 }
 
 ```
@@ -42,24 +60,45 @@ func main(){
 ### Finding paths
 
 Once the graph is created, shortest or longest paths between two points can be generated.
+
 ```go
 
-best, err := graph.Shortest(0, 2)
-if err!=nil{
-  log.Fatal(err)
-}
-fmt.Println("Shortest distance ", best.Distance, " following path ", best.Path)
+  best, err := graph.Shortest(0, 2)
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Println("Shortest distance is", best.Distance, "following path ", best.Path)
 
-best, err := graph.Longest(0, 2)
-if err!=nil{
-  log.Fatal(err)
-}
-fmt.Println("Longest distance ", best.Distance, " following path ", best.Path)
+  best, err = graph.Longest(0, 2)
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Println("Longest distance is", best.Distance, "following path ", best.Path)
 
-best, err := graph.ShortestSafe(0, 2)
-if err!=nil{
+
+```
+
+### Finding multiple paths
+
+```go
+graph := dijkstra.NewGraph()
+//Add the 3 verticies
+graph.AddVertexAndArcs(0, map[int]uint64{1: 1, 2: 1})
+graph.AddVertexAndArcs(1, map[int]uint64{3: 1})
+graph.AddVertexAndArcs(2, map[int]uint64{3: 1})
+graph.AddVertexAndArcs(3, map[int]uint64{4: 1})
+
+best, err := graph.ShortestAll(0, 4)
+if err != nil {
+  fmt.Println(graph)
   log.Fatal(err)
 }
-fmt.Println("Shortest distance with thread safety", best.Distance, " following path ", best.Path)
+fmt.Println("Shortest distances are", best.Distance, "with paths; ", best.Paths)
+
+best, err = graph.LongestAll(0, 4)
+if err != nil {
+  log.Fatal(err)
+}
+fmt.Println("Longest distances are", best.Distance, "following path ", best.Paths)
 
 ```
